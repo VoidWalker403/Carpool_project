@@ -132,3 +132,13 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.BasicAuthentication',
     ],
 }
+DEBUG = False
+
+ALLOWED_HOSTS = ["your-app.onrender.com"]
+MIDDLEWARE = [
+  "django.middleware.security.SecurityMiddleware",
+  "whitenoise.middleware.WhiteNoiseMiddleware",
+  ...
+]
+STATIC_URL = "static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
