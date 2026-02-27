@@ -134,7 +134,7 @@ REST_FRAMEWORK = {
 }
 DEBUG = False
 
-ALLOWED_HOSTS = ["your-app.onrender.com"]
+ALLOWED_HOSTS = ["VoidWalker403.pythonanywhere.com"]
 MIDDLEWARE = [
   "django.middleware.security.SecurityMiddleware",
   "whitenoise.middleware.WhiteNoiseMiddleware",
