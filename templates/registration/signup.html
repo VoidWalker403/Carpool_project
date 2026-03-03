@@ -1,49 +1,137 @@
 {% load static %}
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
+
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Sign up</title>
-  <style>
-    body{font-family:system-ui;display:grid;place-items:center;min-height:100vh;background:#0b1020;color:#fff}
-    .card{width:min(420px,92vw);padding:24px;border:1px solid rgba(255,255,255,.15);border-radius:16px;background:rgba(255,255,255,.06)}
-    input{width:100%;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,.2);background:#0f1730;color:#fff}
-    button{width:100%;margin-top:12px;padding:12px;border:0;border-radius:10px;background:#22d3ee;font-weight:700}
-    a{color:#22d3ee}
-    .err{background:rgba(255,0,80,.15);border:1px solid rgba(255,0,80,.35);padding:10px;border-radius:10px;margin-bottom:12px}
-    label{display:block;margin:10px 0 6px}
-  </style>
+<meta charset="UTF-8">
+<title>Sign Up - Carpool</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+
+body{
+    margin:0;
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-family:'Orbitron', sans-serif;
+
+    background-image: url("{% static 'images/signup_bg.jpg' %}");
+    background-size:cover;
+    background-position:center;
+    background-repeat:no-repeat;
+}
+
+.signup-container{
+
+    width:420px;
+    padding:35px;
+
+    border-radius:18px;
+
+    background:rgba(0,0,0,0.65);
+    backdrop-filter:blur(10px);
+
+    box-shadow:0 0 30px rgba(0,255,255,0.3);
+
+    color:white;
+}
+
+h1{
+    text-align:center;
+    margin-bottom:20px;
+}
+
+label{
+    font-size:14px;
+}
+
+input{
+
+    width:100%;
+    padding:10px;
+    margin-top:5px;
+    margin-bottom:15px;
+
+    border-radius:8px;
+    border:none;
+
+    background:#111;
+    color:white;
+}
+
+input:focus{
+    outline:none;
+    box-shadow:0 0 5px cyan;
+}
+
+button{
+
+    width:100%;
+    padding:12px;
+
+    border:none;
+    border-radius:8px;
+
+    background:linear-gradient(90deg,#00eaff,#ff00ff);
+
+    font-weight:bold;
+    font-size:15px;
+
+    cursor:pointer;
+}
+
+button:hover{
+    transform:scale(1.05);
+}
+
+.login-link{
+    text-align:center;
+    margin-top:15px;
+}
+
+a{
+    color:#00eaff;
+    text-decoration:none;
+}
+
+</style>
+
 </head>
+
 <body>
-  <div class="card">
-    <h2>Create account</h2>
 
-    {% if form.errors %}
-      <div class="err">Please fix the errors below.</div>
-    {% endif %}
+<div class="signup-container">
 
-    <form method="post">
-      {% csrf_token %}
+<h1>Create Account</h1>
 
-      <label>Username</label>
-      {{ form.username }}
+<form method="post">
 
-      <label>Email (optional)</label>
-      {{ form.email }}
+{% csrf_token %}
 
-      <label>Password</label>
-      {{ form.password1 }}
+<label>Username</label>
+{{ form.username }}
 
-      <label>Confirm password</label>
-      {{ form.password2 }}
+<label>Email</label>
+{{ form.email }}
 
-      <button type="submit">Sign up</button>
-    </form>
+<label>Password</label>
+{{ form.password1 }}
 
-    <p style="margin-top:12px">
-      Already have an account? <a href="/login/">Log in</a>
-    </p>
-  </div>
+<label>Confirm Password</label>
+{{ form.password2 }}
+
+<button type="submit">Sign Up</button>
+
+</form>
+
+<div class="login-link">
+Already have an account? <a href="/login/">Login</a>
+</div>
+
+</div>
+
 </body>
 </html>
