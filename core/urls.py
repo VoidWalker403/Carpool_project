@@ -10,3 +10,10 @@ urlpatterns = [
   path("", home),
   path("admin/", admin.site.urls),
 ]
+from accounts.views import signup
+path("signup/", signup, name="signup"),
+urlpatterns = [
+    path("login/", ...),
+    path("signup/", signup),
+    path("admin/", admin.site.urls),
+]
