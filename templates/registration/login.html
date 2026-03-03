@@ -6,191 +6,62 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Login • Carpool</title>
 
-  <!-- Cyberpunk font -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&family=Rajdhani:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
 
   <style>
     :root{
-      --bg0:#05060b;
-      --bg1:#070a15;
-      --bg2:#0a1030;
-      --glass: rgba(10, 16, 48, .55);
-      --stroke: rgba(120, 92, 255, .35);
       --text:#eaf0ff;
-      --muted: rgba(234,240,255,.75);
-      --neon1:#7c5cff;   /* purple */
-      --neon2:#22d3ee;   /* cyan */
-      --neon3:#ff2bd6;   /* pink */
-      --danger:#ff4d6d;
-      --shadow: 0 30px 90px rgba(0,0,0,.65);
-      --radius: 22px;
+      --muted: rgba(234,240,255,.72);
+      --neon1:#7c5cff;
+      --neon2:#22d3ee;
+      --neon3:#ff2bd6;
+      --stroke: rgba(255,255,255,.14);
     }
+    *{box-sizing:border-box}
 
-    *{ box-sizing:border-box; }
     body{
       margin:0;
-      min-height:100svh;
-      overflow:hidden;
-      color:var(--text);
-      background:
-        radial-gradient(900px 500px at 20% 10%, rgba(124,92,255,.25), transparent 60%),
-        radial-gradient(900px 500px at 85% 30%, rgba(34,211,238,.18), transparent 55%),
-        linear-gradient(160deg, var(--bg0), var(--bg1), var(--bg2));
-      font-family: "Rajdhani", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
-    }
-
-    /* ====== BACKGROUND RACE SCENE ====== */
-    .scene{
-      position:fixed; inset:0;
-      pointer-events:none;
-    }
-
-    /* Speed streaks */
-    .streaks{
-      position:absolute; inset:-30%;
-      background:
-        repeating-linear-gradient(
-          115deg,
-          rgba(255,255,255,.0) 0px,
-          rgba(255,255,255,.0) 20px,
-          rgba(34,211,238,.12) 22px,
-          rgba(124,92,255,.10) 24px,
-          rgba(255,255,255,.0) 40px
-        );
-      filter: blur(1px);
-      opacity:.75;
-      animation: streakMove 1.2s linear infinite;
-      transform: translate3d(0,0,0);
-      mix-blend-mode: screen;
-    }
-    @keyframes streakMove{
-      from { transform: translateX(-10%) translateY(0); }
-      to   { transform: translateX(10%)  translateY(0); }
-    }
-
-    /* Road / lane lines (perspective) */
-    .road{
-      position:absolute;
-      left:50%;
-      bottom:-10%;
-      width:min(900px, 140vw);
-      height:70vh;
-      transform: translateX(-50%) perspective(800px) rotateX(62deg);
-      border-radius: 40px;
-      background:
-        linear-gradient(180deg, rgba(0,0,0,.0), rgba(0,0,0,.45)),
-        linear-gradient(90deg, rgba(255,255,255,.06), rgba(255,255,255,.02) 50%, rgba(255,255,255,.06));
-      box-shadow: 0 -40px 120px rgba(0,0,0,.55) inset;
-      opacity:.85;
-    }
-
-    .lane{
-      position:absolute;
-      left:50%;
-      top:-30%;
-      width:6px;
-      height:160%;
-      transform: translateX(-50%);
-      background: repeating-linear-gradient(
-        180deg,
-        rgba(255,255,255,.0) 0px,
-        rgba(255,255,255,.0) 18px,
-        rgba(255,255,255,.35) 19px,
-        rgba(255,255,255,.35) 30px
-      );
-      filter: blur(.3px);
-      opacity:.75;
-      animation: laneMove .45s linear infinite;
-    }
-
-    /* two extra lanes */
-    .lane.l2{ left:35%; opacity:.35; transform: translateX(-50%) scaleX(.85); }
-    .lane.l3{ left:65%; opacity:.35; transform: translateX(-50%) scaleX(.85); }
-
-    @keyframes laneMove{
-      from { transform: translateX(-50%) translateY(-10%); }
-      to   { transform: translateX(-50%) translateY(10%); }
-    }
-
-    /* Neon fog / aura */
-    .fog{
-      position:absolute; inset:-20%;
-      background: conic-gradient(from 180deg, rgba(124,92,255,.22), rgba(34,211,238,.18), rgba(255,43,214,.16), rgba(124,92,255,.22));
-      filter: blur(70px);
-      opacity:.65;
-      animation: fogSpin 16s linear infinite;
-      mix-blend-mode: screen;
-    }
-    @keyframes fogSpin{ to { transform: rotate(360deg); } }
-
-    /* ====== SPORTS CAR (SVG) ====== */
-    .carWrap{
-      position:absolute;
-      left:50%;
-      bottom:12%;
-      transform: translateX(-50%);
-      width:min(720px, 120vw);
-      opacity:.92;
-      filter: drop-shadow(0 18px 35px rgba(0,0,0,.6));
-      animation: carJitter .9s ease-in-out infinite;
-    }
-    @keyframes carJitter{
-      0%,100% { transform: translateX(-50%) translateY(0); }
-      50%     { transform: translateX(calc(-50% + 2px)) translateY(-2px); }
-    }
-
-    .carGlow{
-      position:absolute;
-      left:50%;
-      bottom:8%;
-      width:min(600px, 110vw);
-      height:220px;
-      transform: translateX(-50%);
-      background:
-        radial-gradient(closest-side at 50% 60%, rgba(124,92,255,.45), transparent 70%),
-        radial-gradient(closest-side at 40% 70%, rgba(34,211,238,.35), transparent 70%),
-        radial-gradient(closest-side at 60% 70%, rgba(255,43,214,.22), transparent 70%);
-      filter: blur(18px);
-      opacity:.85;
-      animation: glowPulse 1.2s ease-in-out infinite;
-      mix-blend-mode: screen;
-    }
-    @keyframes glowPulse{
-      0%,100%{ transform: translateX(-50%) scale(1); opacity:.75; }
-      50%{ transform: translateX(-50%) scale(1.04); opacity:.95; }
-    }
-
-    /* ====== LOGIN CARD ====== */
-    .wrap{
-      position:relative;
-      min-height:100svh;
+      min-height:100vh;
       display:grid;
       place-items:center;
-      padding:24px;
-      pointer-events:auto;
+      font-family: "Orbitron", system-ui, sans-serif;
+      color: var(--text);
+
+      background:
+        radial-gradient(1200px 700px at 20% 20%, rgba(124,92,255,.20), transparent 60%),
+        radial-gradient(1000px 600px at 80% 30%, rgba(34,211,238,.14), transparent 55%),
+        linear-gradient(rgba(0,0,0,.72), rgba(0,0,0,.72)),
+        url("{% static 'images/porsche.jpg' %}");
+
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      overflow:hidden;
+    }
+
+    .headlight-glow{
+      position: fixed;
+      inset: 0;
+      pointer-events:none;
+      background:
+        radial-gradient(420px 220px at 58% 62%, rgba(255,255,255,.12), transparent 70%),
+        radial-gradient(520px 260px at 62% 62%, rgba(34,211,238,.18), transparent 75%),
+        radial-gradient(560px 280px at 45% 62%, rgba(124,92,255,.14), transparent 80%);
+      mix-blend-mode: screen;
+      opacity: .95;
     }
 
     .card{
-      width:min(980px, 100%);
-      display:grid;
-      grid-template-columns: 1.2fr 1fr;
-      border:1px solid var(--stroke);
-      border-radius: var(--radius);
-      background: linear-gradient(180deg, rgba(15,23,51,.72), rgba(10,15,36,.72));
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(10px);
-      overflow:hidden;
-      opacity:0;
-      transform: translateY(10px);
-      animation: pop 700ms cubic-bezier(.2,.9,.2,1) forwards;
-    }
-    @keyframes pop{ to{ opacity:1; transform: translateY(0); } }
-
-    .left{
-      padding:42px 40px;
-      position:relative;
+      width: min(520px, 92vw);
+      border: 1px solid var(--stroke);
+      border-radius: 22px;
+      background: rgba(10, 12, 24, .62);
+      backdrop-filter: blur(14px);
+      box-shadow: 0 30px 90px rgba(0,0,0,.65);
+      padding: 34px 30px;
+      position: relative;
     }
 
     .badge{
@@ -199,336 +70,134 @@
       gap:10px;
       padding:10px 14px;
       border-radius:999px;
-      border:1px solid rgba(255,255,255,.14);
-      background: rgba(0,0,0,.18);
+      border:1px solid var(--stroke);
+      background: rgba(0,0,0,.16);
       font-size:12px;
-      letter-spacing:.8px;
+      letter-spacing:1px;
       text-transform:uppercase;
-      font-family: "Orbitron", system-ui;
-      color: rgba(234,240,255,.85);
+      margin-bottom:14px;
     }
-    .badge .dot{
+    .dot{
       width:10px;height:10px;border-radius:999px;
       background: radial-gradient(circle at 30% 30%, #fff, var(--neon2));
       box-shadow: 0 0 14px var(--neon2);
     }
 
     h1{
-      margin:18px 0 10px;
-      font-family:"Orbitron", system-ui;
-      font-size: clamp(28px, 3.2vw, 42px);
-      line-height:1.05;
-      letter-spacing:.6px;
-      text-shadow: 0 0 18px rgba(124,92,255,.18);
-    }
-    .sub{
-      margin:0 0 18px;
-      color: var(--muted);
-      max-width:48ch;
-      line-height:1.5;
-      font-size:15px;
-    }
-
-    .glowline{
-      height:1px;
-      width:100%;
-      background: linear-gradient(90deg, transparent, rgba(124,92,255,.7), rgba(34,211,238,.65), rgba(255,43,214,.5), transparent);
-      margin:22px 0;
-      opacity:.9;
-    }
-
-    .feature{
-      display:flex;
-      gap:12px;
-      margin:12px 0;
-      color:rgba(234,240,255,.78);
-      font-size:14px;
-      align-items:flex-start;
-    }
-    .icon{
-      width:34px;height:34px;
-      border-radius:12px;
-      background: linear-gradient(135deg, rgba(124,92,255,.25), rgba(34,211,238,.18));
-      border:1px solid rgba(255,255,255,.14);
-      display:grid;
-      place-items:center;
-      flex: 0 0 auto;
-      filter: drop-shadow(0 10px 30px rgba(124,92,255,.12));
-    }
-
-    .right{
-      padding:42px 36px;
-      border-left:1px solid rgba(255,255,255,.14);
-      background: linear-gradient(180deg, rgba(0,0,0,.12), rgba(0,0,0,.22));
-    }
-
-    .title2{
-      font-family:"Orbitron", system-ui;
-      font-size:18px;
-      margin:0 0 6px;
-      letter-spacing:.7px;
-      text-transform:uppercase;
+      margin: 0 0 6px;
+      font-size: 26px;
+      letter-spacing: 1px;
     }
     .hint{
-      color:var(--muted);
-      font-size:13px;
-      margin:0 0 18px;
+      margin: 0 0 18px;
+      color: var(--muted);
+      font-family: system-ui, sans-serif;
+      letter-spacing: .2px;
+      font-size: 13px;
+      line-height: 1.4;
     }
 
     label{
       display:block;
-      font-family:"Orbitron", system-ui;
       font-size:11px;
-      color:rgba(234,240,255,.75);
-      margin:0 0 8px;
       letter-spacing:1px;
       text-transform:uppercase;
+      color: rgba(234,240,255,.78);
+      margin: 12px 0 8px;
     }
 
     .input{
       width:100%;
       padding:14px 14px;
-      border-radius:14px;
-      border:1px solid rgba(255,255,255,.14);
+      border-radius: 14px;
+      border: 1px solid var(--stroke);
       background: rgba(5,6,11,.55);
-      color:var(--text);
+      color: var(--text);
       outline:none;
-      transition: transform .12s ease, border-color .12s ease, box-shadow .12s ease;
-      font-size:15px;
-      letter-spacing:.3px;
+      font-size: 14px;
+      letter-spacing: .4px;
+      transition: box-shadow .12s ease, transform .12s ease, border-color .12s ease;
     }
-    .input::placeholder{ color: rgba(234,240,255,.45); }
-
     .input:focus{
       border-color: rgba(34,211,238,.65);
       box-shadow: 0 0 0 7px rgba(34,211,238,.14), 0 0 24px rgba(124,92,255,.12);
       transform: translateY(-1px);
     }
 
-    .row{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      margin-top:10px;
-      color:var(--muted);
-      font-size:13px;
-    }
-    .row a{
-      font-family:"Orbitron", system-ui;
-      color: rgba(234,240,255,.9);
-      text-decoration:none;
-      letter-spacing:.7px;
-      font-size:12px;
-    }
-    .row a:hover{ text-decoration:underline; }
-
     .btn{
       width:100%;
-      margin-top:16px;
-      padding:14px 14px;
-      border-radius:14px;
-      border:0;
-      color:#060711;
-      font-family:"Orbitron", system-ui;
-      font-weight:800;
-      letter-spacing:1px;
-      cursor:pointer;
+      margin-top: 18px;
+      padding: 14px 14px;
+      border-radius: 14px;
+      border: 0;
+      cursor: pointer;
+      font-weight: 900;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      color: #05060b;
       background: linear-gradient(90deg, var(--neon1), var(--neon2), var(--neon3));
       box-shadow: 0 18px 50px rgba(124,92,255,.22);
       transition: transform .12s ease, filter .12s ease;
-      text-transform:uppercase;
     }
     .btn:hover{ transform: translateY(-1px); filter: brightness(1.08); }
     .btn:active{ transform: translateY(0); }
 
+    .row{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      margin-top: 10px;
+      font-size: 12px;
+      color: var(--muted);
+      font-family: system-ui, sans-serif;
+    }
+    .row a{
+      color: rgba(234,240,255,.9);
+      text-decoration:none;
+    }
+    .row a:hover{ text-decoration:underline; }
+
     .msg{
-      margin-top:12px;
-      padding:12px 12px;
-      border-radius:14px;
-      border:1px solid rgba(255,77,109,.45);
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,77,109,.45);
       background: rgba(255,77,109,.12);
       color:#ffd6de;
-      font-size:13px;
-    }
-
-    .mini{
-      margin-top:16px;
-      color:rgba(234,240,255,.68);
-      font-size:12px;
-      line-height:1.4;
-      text-align:center;
-    }
-
-    @media (max-width: 860px){
-      .card{ grid-template-columns: 1fr; }
-      .right{ border-left:0; border-top:1px solid rgba(255,255,255,.14); }
-      .carWrap{ bottom:8%; opacity:.6; }
-      .carGlow{ opacity:.55; }
-    }
-
-    /* Reduce motion support */
-    @media (prefers-reduced-motion: reduce){
-      .streaks, .fog, .lane, .carWrap, .carGlow{ animation:none !important; }
+      font-size: 13px;
+      font-family: system-ui, sans-serif;
     }
   </style>
 </head>
 
 <body>
-  <!-- Racing background -->
-  <div class="scene" aria-hidden="true">
-    <div class="fog"></div>
-    <div class="streaks"></div>
+  <div class="headlight-glow" aria-hidden="true"></div>
 
-    <div class="road">
-      <div class="lane"></div>
-      <div class="lane l2"></div>
-      <div class="lane l3"></div>
-    </div>
+  <div class="card">
+    <div class="badge"><span class="dot"></span> CARPOOL • NIGHT RUN</div>
+    <h1>SIGN IN</h1>
+    <p class="hint">Enter your username + password. Admin works too.</p>
 
-    <div class="carGlow"></div>
+    {% if form.errors %}
+      <div class="msg">Wrong username/password. Try again.</div>
+    {% endif %}
 
-    <!-- Sports car SVG (stylized) -->
-    <div class="carWrap">
-      <svg viewBox="0 0 1200 420" width="100%" height="auto">
-        <!-- neon underglow -->
-        <defs>
-          <linearGradient id="gBody" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0" stop-color="rgba(124,92,255,.9)"/>
-            <stop offset="0.6" stop-color="rgba(34,211,238,.75)"/>
-            <stop offset="1" stop-color="rgba(255,43,214,.6)"/>
-          </linearGradient>
-          <filter id="blurGlow" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation="6" result="b"/>
-            <feColorMatrix in="b" type="matrix"
-              values="1 0 0 0 0
-                      0 1 0 0 0
-                      0 0 1 0 0
-                      0 0 0 0.9 0" result="c"/>
-            <feMerge>
-              <feMergeNode in="c"/>
-              <feMergeNode in="SourceGraphic"/>
-            </feMerge>
-          </filter>
-        </defs>
+    <form method="post">
+      {% csrf_token %}
 
-        <!-- motion blur streak behind car -->
-        <path d="M120 250 C260 220, 320 220, 500 235 C360 260, 280 280, 140 300"
-              fill="none" stroke="rgba(34,211,238,.20)" stroke-width="26" stroke-linecap="round"/>
-        <path d="M120 275 C260 245, 330 248, 520 265 C380 290, 290 305, 140 325"
-              fill="none" stroke="rgba(124,92,255,.16)" stroke-width="18" stroke-linecap="round"/>
+      <label for="id_username">Username</label>
+      <input class="input" type="text" name="username" required id="id_username" autocomplete="username" placeholder="VoidWalker403" />
 
-        <!-- car silhouette -->
-        <g filter="url(#blurGlow)">
-          <!-- body -->
-          <path d="M220 265
-                   C260 220, 330 195, 430 190
-                   L610 180
-                   C700 178, 765 190, 830 220
-                   L940 240
-                   C990 250, 1010 270, 1015 290
-                   L1018 315
-                   C1020 338, 1004 350, 980 350
-                   L235 350
-                   C205 350, 190 330, 195 305
-                   L205 280
-                   C210 272, 214 270, 220 265 Z"
-                fill="rgba(10,12,24,.65)" stroke="url(#gBody)" stroke-width="6"/>
+      <label for="id_password">Password</label>
+      <input class="input" type="password" name="password" required id="id_password" autocomplete="current-password" placeholder="••••••••" />
 
-          <!-- windshield -->
-          <path d="M470 198 L590 190 C640 188, 690 198, 740 220
-                   L705 220 C660 205, 625 200, 575 202
-                   L500 208 Z"
-                fill="rgba(234,240,255,.10)" stroke="rgba(234,240,255,.16)" stroke-width="3"/>
-
-          <!-- headlight -->
-          <path d="M915 262 C948 268, 966 282, 970 297
-                   C952 312, 930 316, 900 312
-                   C898 290, 903 274, 915 262 Z"
-                fill="rgba(34,211,238,.22)" stroke="rgba(34,211,238,.7)" stroke-width="3"/>
-
-          <!-- tail light -->
-          <path d="M245 285 C235 294, 232 305, 235 316
-                   C255 320, 275 315, 285 305
-                   C275 290, 262 285, 245 285 Z"
-                fill="rgba(255,43,214,.18)" stroke="rgba(255,43,214,.7)" stroke-width="3"/>
-
-          <!-- wheels -->
-          <g>
-            <circle cx="350" cy="350" r="62" fill="rgba(0,0,0,.65)" stroke="rgba(234,240,255,.18)" stroke-width="6"/>
-            <circle cx="350" cy="350" r="26" fill="rgba(234,240,255,.06)" stroke="rgba(34,211,238,.35)" stroke-width="4"/>
-            <circle cx="860" cy="350" r="62" fill="rgba(0,0,0,.65)" stroke="rgba(234,240,255,.18)" stroke-width="6"/>
-            <circle cx="860" cy="350" r="26" fill="rgba(234,240,255,.06)" stroke="rgba(124,92,255,.35)" stroke-width="4"/>
-          </g>
-
-          <!-- neon line accents -->
-          <path d="M300 280 L820 270" stroke="rgba(124,92,255,.55)" stroke-width="4" stroke-linecap="round"/>
-          <path d="M320 310 L900 305" stroke="rgba(34,211,238,.45)" stroke-width="4" stroke-linecap="round"/>
-        </g>
-      </svg>
-    </div>
-  </div>
-
-  <!-- Login UI -->
-  <div class="wrap">
-    <div class="card">
-      <div class="left">
-        <div class="badge"><span class="dot"></span> Carpool • Night Run</div>
-        <h1>Enter the Grid.</h1>
-        <p class="sub">
-          Log in and launch your next ride. Neon streets, high speed, clean access.
-        </p>
-
-        <div class="glowline"></div>
-
-        <div class="feature">
-          <div class="icon">🏁</div>
-          <div><b>Race-ready UI</b><br/>Animated background with speed lines and road perspective.</div>
-        </div>
-        <div class="feature">
-          <div class="icon">🛡️</div>
-          <div><b>Secure Auth</b><br/>Uses Django’s built-in authentication system.</div>
-        </div>
-        <div class="feature">
-          <div class="icon">🗺️</div>
-          <div><b>Graph Trips</b><br/>Publish rides on nodes, join mid-route.</div>
-        </div>
+      <div class="row">
+        <span>Quick access</span>
+        <a href="/admin/">Admin</a>
       </div>
 
-      <div class="right">
-        <p class="title2">Sign in</p>
-        <p class="hint">Username + password. (Admin works too)</p>
-
-        {% if form.errors %}
-          <div class="msg">Wrong username/password. Try again.</div>
-        {% endif %}
-
-        <form method="post">
-          {% csrf_token %}
-
-          <div class="field">
-            <label for="id_username">Username</label>
-            <input class="input" type="text" name="username" required id="id_username"
-                   placeholder="VoidWalker403" autocomplete="username" />
-          </div>
-
-          <div class="field">
-            <label for="id_password">Password</label>
-            <input class="input" type="password" name="password" required id="id_password"
-                   placeholder="••••••••" autocomplete="current-password" />
-          </div>
-
-          <div class="row">
-            <span>Quick access</span>
-            <a href="/admin/">ADMIN</a>
-          </div>
-
-          <button class="btn" type="submit">BOOST IN</button>
-
-          <p class="mini">Tip: if motion feels too much, enable “Reduce Motion” in your OS settings.</p>
-        </form>
-      </div>
-    </div>
+      <button class="btn" type="submit">BOOST IN</button>
+    </form>
   </div>
 </body>
 </html>
