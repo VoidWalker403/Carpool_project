@@ -1,0 +1,388 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Passenger Dashboard • Night Run</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --cyan:#22d3ee;
+      --pink:#ff2bd6;
+      --violet:#7c5cff;
+      --glass: rgba(10,12,24,.62);
+      --border: rgba(255,255,255,.14);
+      --text: rgba(234,240,255,.92);
+      --muted: rgba(234,240,255,.65);
+    }
+
+    *{ box-sizing: border-box; }
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family: Orbitron, system-ui, sans-serif;
+      color: var(--text);
+
+      background:
+        radial-gradient(1200px 600px at 20% 10%, rgba(124,92,255,.18), transparent 55%),
+        radial-gradient(1000px 600px at 80% 20%, rgba(34,211,238,.16), transparent 55%),
+        linear-gradient(rgba(0,0,0,.72), rgba(0,0,0,.78)),
+        url("{% static 'images/porsche.jpg' %}");
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      overflow-x:hidden;
+    }
+
+    /* subtle moving scanlines */
+    body::before{
+      content:"";
+      position:fixed; inset:0;
+      background: repeating-linear-gradient(
+        to bottom,
+        rgba(255,255,255,0.06) 0px,
+        rgba(255,255,255,0.06) 1px,
+        transparent 2px,
+        transparent 7px
+      );
+      opacity:.08;
+      pointer-events:none;
+      animation: scan 8s linear infinite;
+    }
+    @keyframes scan{
+      from{ transform: translateY(-20px); }
+      to{ transform: translateY(20px); }
+    }
+
+    .wrap{
+      width:min(1100px, 94vw);
+      margin: 26px auto 40px;
+    }
+
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+      padding:14px 16px;
+      border:1px solid var(--border);
+      border-radius:18px;
+      background: var(--glass);
+      backdrop-filter: blur(14px);
+      box-shadow: 0 30px 90px rgba(0,0,0,.55);
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+    }
+    .badge{
+      padding:6px 10px;
+      border:1px solid rgba(34,211,238,.35);
+      border-radius:999px;
+      font-size:12px;
+      letter-spacing:1px;
+      color:rgba(34,211,238,.95);
+      background: rgba(34,211,238,.08);
+      text-transform: uppercase;
+    }
+    .title{
+      font-weight:800;
+      letter-spacing:1px;
+      text-transform: uppercase;
+      font-size: 14px;
+    }
+    .muted{ color: var(--muted); font-size:12px; }
+
+    .actions{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .chip{
+      border:1px solid var(--border);
+      background: rgba(5,6,11,.55);
+      color: var(--text);
+      padding:10px 12px;
+      border-radius: 12px;
+      font-size:12px;
+      letter-spacing: .6px;
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+
+    .btn{
+      appearance:none;
+      border:0;
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-family: inherit;
+      letter-spacing:1px;
+      text-transform: uppercase;
+      font-weight:800;
+      cursor:pointer;
+      color:#05060b;
+      background: linear-gradient(90deg, var(--violet), var(--cyan), var(--pink));
+      box-shadow: 0 18px 55px rgba(124,92,255,.22);
+      text-decoration:none;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+    }
+    .btn:hover{ filter: brightness(1.08); transform: translateY(-1px); }
+    .btn.secondary{
+      background: rgba(255,255,255,.10);
+      color: var(--text);
+      border:1px solid var(--border);
+      box-shadow:none;
+    }
+
+    .grid{
+      margin-top: 18px;
+      display:grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap: 16px;
+    }
+    @media (max-width: 900px){
+      .grid{ grid-template-columns: 1fr; }
+    }
+
+    .card{
+      border:1px solid var(--border);
+      border-radius:18px;
+      background: var(--glass);
+      backdrop-filter: blur(14px);
+      box-shadow: 0 30px 90px rgba(0,0,0,.45);
+      padding: 16px;
+    }
+
+    .card h2{
+      margin: 0 0 10px;
+      font-size: 14px;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+    }
+
+    .search{
+      display:grid;
+      grid-template-columns: 1fr 1fr 1fr auto;
+      gap: 10px;
+      align-items:end;
+    }
+    @media (max-width: 900px){
+      .search{ grid-template-columns: 1fr; }
+    }
+
+    label{
+      display:block;
+      font-size: 11px;
+      letter-spacing:1px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom:6px;
+    }
+
+    input, select{
+      width:100%;
+      padding:12px 12px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.16);
+      background: rgba(5,6,11,.55);
+      color: var(--text);
+      outline:none;
+      font-family: inherit;
+    }
+    input:focus, select:focus{
+      border-color: rgba(34,211,238,.65);
+      box-shadow: 0 0 0 6px rgba(34,211,238,.14);
+    }
+
+    .results{
+      margin-top: 14px;
+      display:grid;
+      gap: 12px;
+    }
+
+    .trip{
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:16px;
+      padding: 12px;
+      background: rgba(5,6,11,.38);
+      display:flex;
+      justify-content:space-between;
+      gap: 12px;
+      align-items:center;
+    }
+
+    .trip strong{
+      display:block;
+      font-size: 13px;
+      letter-spacing:.6px;
+    }
+    .trip .meta{
+      font-size: 11px;
+      color: var(--muted);
+      margin-top:4px;
+    }
+
+    .pill{
+      padding:6px 10px;
+      border-radius:999px;
+      font-size: 11px;
+      letter-spacing: .8px;
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      text-transform: uppercase;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      white-space:nowrap;
+    }
+
+    .mini{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top: 10px;
+    }
+
+    .hint{
+      margin-top: 10px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    /* Reduce motion */
+    @media (prefers-reduced-motion: reduce){
+      body::before{ animation:none; }
+      .btn:hover{ transform:none; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+
+    <div class="topbar">
+      <div class="brand">
+        <div class="badge">Passenger • Night Run</div>
+        <div>
+          <div class="title">Trip Search Console</div>
+          <div class="muted">Welcome, {{ request.user.username }} — find a ride and boost in.</div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <div class="chip">⚡ Status: Online</div>
+        <a class="btn secondary" href="/login/">Switch Account</a>
+        <a class="btn" href="/logout/">Logout</a>
+      </div>
+    </div>
+
+    <div class="grid">
+
+      <!-- Left: Search + Results -->
+      <div class="card">
+        <h2>Find a trip</h2>
+
+        <!-- For now this is UI only (no backend filtering yet) -->
+        <form class="search" method="get">
+          <div>
+            <label>From</label>
+            <input name="from" placeholder="Node / Area (e.g., A12)" />
+          </div>
+          <div>
+            <label>To</label>
+            <input name="to" placeholder="Node / Area (e.g., B07)" />
+          </div>
+          <div>
+            <label>When</label>
+            <input name="when" type="time" />
+          </div>
+          <div>
+            <button class="btn" type="submit">BOOST SEARCH</button>
+          </div>
+        </form>
+
+        <div class="mini">
+          <span class="pill">🛰 Nearby join: enabled</span>
+          <span class="pill">🧠 Smart match: soon</span>
+          <span class="pill">🧾 Requests: soon</span>
+        </div>
+
+        <div class="results">
+
+          <!-- Dummy trips (we will replace with real DB trips next) -->
+          <div class="trip">
+            <div>
+              <strong>A12 → C09</strong>
+              <div class="meta">Driver: NeoRider • Seats: 2 • ETA: 12 min • Price: ₹60</div>
+            </div>
+            <div style="display:flex; gap:10px; align-items:center;">
+              <span class="pill">LIVE</span>
+              <button class="btn secondary" type="button">REQUEST</button>
+            </div>
+          </div>
+
+          <div class="trip">
+            <div>
+              <strong>B07 → D02</strong>
+              <div class="meta">Driver: DriftKing • Seats: 1 • ETA: 8 min • Price: ₹45</div>
+            </div>
+            <div style="display:flex; gap:10px; align-items:center;">
+              <span class="pill">LIVE</span>
+              <button class="btn secondary" type="button">REQUEST</button>
+            </div>
+          </div>
+
+          <div class="trip">
+            <div>
+              <strong>R11 → G05</strong>
+              <div class="meta">Driver: VoidShift • Seats: 3 • ETA: 20 min • Price: ₹80</div>
+            </div>
+            <div style="display:flex; gap:10px; align-items:center;">
+              <span class="pill">SCHEDULED</span>
+              <button class="btn secondary" type="button">REQUEST</button>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="hint">
+          Next: we’ll connect this UI to your Django models so these trips come from the database + requests actually work.
+        </div>
+      </div>
+
+      <!-- Right: Quick info -->
+      <div class="card">
+        <h2>Quick actions</h2>
+
+        <div class="mini">
+          <a class="btn secondary" href="/admin/">Admin</a>
+          <a class="btn secondary" href="/driver/">Driver View</a>
+        </div>
+
+        <div class="hint" style="margin-top:14px;">
+          <strong>Rule:</strong> Passengers can search trips + request to join. Drivers publish trips. Admin manages the road network graph.
+        </div>
+
+        <div class="hint" style="margin-top:14px;">
+          <strong>Pro UI tip:</strong> Replace the background image by changing:
+          <code style="color:rgba(234,240,255,.8)">static/images/10.jpg</code>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</body>
+</html>
