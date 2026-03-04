@@ -4,12 +4,13 @@ from django.http import HttpResponse
 from accounts.views import signup
 from django.contrib.auth import views as auth_views
 from accounts.role_views import passenger_dashboard, driver_dashboard
+from django.views.generic import RedirectView
 
 def home(request):
     return HttpResponse("Carpool Project is Live 🚀")
 
 urlpatterns = [
-    path("", home, name="home"),
+    path("", RedirectView.as_view(url="/login/", permanent=False)),
 
     # Admin
     path("admin/", admin.site.urls),
@@ -20,4 +21,5 @@ urlpatterns = [
     path("signup/", signup, name="signup"),
     path("passenger/", passenger_dashboard, name="passenger_dashboard"),
     path("driver/", driver_dashboard, name="driver_dashboard"),
+    
 ]
