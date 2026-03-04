@@ -5,6 +5,7 @@ from accounts.views import signup
 from django.contrib.auth import views as auth_views
 from accounts.role_views import passenger_dashboard, driver_dashboard
 from django.views.generic import RedirectView
+from accounts.views_redirect import post_login_redirect
 
 def home(request):
     return HttpResponse("Carpool Project is Live 🚀")
@@ -16,7 +17,10 @@ urlpatterns = [
     path("admin/", admin.site.urls),
 
     # Auth pages
-    path("login/", auth_views.LoginView.as_view(template_name="registration/login.html"), name="login"),
+    path("login/", auth_views.LoginView.as_view(
+    template_name="registration/login.html",
+    next_page="/post-login/"), name="login"),
+    path("post-login/", post_login_redirect, name="post_login"),
     path("logout/", auth_views.LogoutView.as_view(), name="logout"),
     path("signup/", signup, name="signup"),
     path("passenger/", passenger_dashboard, name="passenger_dashboard"),
