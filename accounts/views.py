@@ -1,7 +1,6 @@
+from django.shortcuts import render, redirect
 from django.contrib.auth import login
 from django.contrib.auth.models import Group
-from django.shortcuts import render, redirect
-
 from .forms import SignUpForm
 
 def signup(request):
@@ -10,11 +9,15 @@ def signup(request):
         if form.is_valid():
             user = form.save()
 
-            # Default role: Passenger
-            passengers, _ = Group.objects.get_or_create(name="Passengers")
-            user.groups.add(passengers)
+            role = form.cleaned_data["role"]  # "Drivers" or "Passengers"
+            group, _ = Group.objects.get_or_create(name=role)
+            user.groups.add(group)
 
-            login(request, user)  # auto-login after signup
+            login(request, user)
+
+            # send them to their dashboard
+            if role == "Drivers":
+                return redirect("/driver/")
             return redirect("/passenger/")
     else:
         form = SignUpForm()

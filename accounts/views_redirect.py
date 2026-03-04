@@ -5,13 +5,10 @@ from django.shortcuts import redirect
 def post_login_redirect(request):
     user = request.user
 
-    # Superuser/admin -> admin panel
     if user.is_superuser or user.is_staff:
         return redirect("/admin/")
 
-    # Driver group -> driver dashboard
     if user.groups.filter(name="Drivers").exists():
         return redirect("/driver/")
 
-    # Default -> passenger dashboard
     return redirect("/passenger/")
