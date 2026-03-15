@@ -268,7 +268,20 @@
     }
   </style>
 </head>
+<h2>Available Rides</h2>
 
+{% if rides %}
+    {% for ride in rides %}
+        <div class="ride-card">
+            <b>{{ ride.from_location }}</b> → <b>{{ ride.to_location }}</b><br>
+            Departure: {{ ride.departure_time }}<br>
+            Seats: {{ ride.seats_available }}<br>
+            Price: ₹{{ ride.price_per_seat }}
+        </div>
+    {% endfor %}
+{% else %}
+    <p>No rides available right now.</p>
+{% endif %}
 <body>
   <div class="wrap">
 
