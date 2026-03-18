@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Offer a Ride</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #0b0b0b;
+            color: white;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: rgba(255,255,255,0.08);
+            padding: 24px;
+            border-radius: 12px;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0 16px;
+            border-radius: 8px;
+            border: none;
+            background: #111;
+            color: white;
+            box-sizing: border-box;
+        }
+
+        button, .back-btn {
+            background: cyan;
+            color: black;
+            border: none;
+            padding: 12px 18px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        #map {
+            height: 350px;
+            margin-top: 20px;
+            border-radius: 12px;
+        }
+
+        .actions {
+            margin-top: 10px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Offer a Ride</h1>
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <label>From location</label>
+        {{ form.from_location }}
+
+        <label>To location</label>
+        {{ form.to_location }}
+
+        {{ form.from_lat }}
+        {{ form.from_lng }}
+        {{ form.to_lat }}
+        {{ form.to_lng }}
+
+        <label>Departure time</label>
+        {{ form.departure_time }}
+
+        <label>Seats available</label>
+        {{ form.seats_available }}
+
+        <label>Price per seat</label>
+        {{ form.price_per_seat }}
+
+        <label>Notes</label>
+        {{ form.notes }}
+
+        <div class="actions">
+            <button type="submit">Save Ride Offer</button>
+            <a href="/driver/" class="back-btn">Back to Dashboard</a>
+        </div>
+    </form>
+
+    <p style="margin-top: 15px;">
+        Click once on the map for the <strong>FROM</strong> point, then click again for the <strong>TO</strong> point.
+    </p>
+
+    <div id="map"></div>
+</div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<script>
+    const map = L.map('map').setView([20.5937, 78.9629], 5);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    let fromMarker = null;
+    let toMarker = null;
+    let selectingFrom = true;
+
+    const fromLatInput = document.getElementById('id_from_lat');
+    const fromLngInput = document.getElementById('id_from_lng');
+    const toLatInput = document.getElementById('id_to_lat');
+    const toLngInput = document.getElementById('id_to_lng');
+
+    map.on('click', function(e) {
+        const lat = e.latlng.lat;
+        const lng = e.latlng.lng;
+
+        if (selectingFrom) {
+            if (fromMarker) {
+                map.removeLayer(fromMarker);
+            }
+
+            fromMarker = L.marker([lat, lng]).addTo(map)
+                .bindPopup('From')
+                .openPopup();
+
+            fromLatInput.value = lat;
+            fromLngInput.value = lng;
+            selectingFrom = false;
+
+            alert('Now click the TO location.');
+        } else {
+            if (toMarker) {
+                map.removeLayer(toMarker);
+            }
+
+            toMarker = L.marker([lat, lng]).addTo(map)
+                .bindPopup('To')
+                .openPopup();
+
+            toLatInput.value = lat;
+            toLngInput.value = lng;
+            selectingFrom = true;
+
+            alert('Both points selected. Now save the ride.');
+        }
+    });
+
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+            map.setView([position.coords.latitude, position.coords.longitude], 13);
+        });
+    }
+</script>
+
+</body>
+</html>
