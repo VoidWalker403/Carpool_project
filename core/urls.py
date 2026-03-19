@@ -1,9 +1,9 @@
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 from django.http import HttpResponse
 from accounts.views import signup
 from django.contrib.auth import views as auth_views
-from accounts.role_views import passenger_dashboard, driver_dashboard
+from accounts.views import passenger_dashboard, driver_dashboard
 from django.views.generic import RedirectView
 from accounts.views_redirect import post_login_redirect
 
@@ -25,5 +25,6 @@ urlpatterns = [
     path("signup/", signup, name="signup"),
     path("passenger/", passenger_dashboard, name="passenger_dashboard"),
     path("driver/", driver_dashboard, name="driver_dashboard"),
+    path('', include('accounts.urls'))
     
 ]
