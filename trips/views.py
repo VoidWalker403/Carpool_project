@@ -2,14 +2,11 @@ from rest_framework import generics, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from django.shortcuts import get_object_or_404
-from .models import Trip, TripRoute
-from .serializers import TripSerializer, UpdateCurrentNodeSerializer
-from network.models import Node
+from django.shortcuts import get_object_or_404, render
 from .models import Trip, TripRoute, CarpoolRequest, DriverOffer
 from .serializers import TripSerializer, UpdateCurrentNodeSerializer, CarpoolRequestSerializer, DriverOfferSerializer
+from network.models import Node
 from network.graph_utils import calculate_detour, calculate_fare, get_nodes_within_distance
-from django.shortcuts import render
 
 class PublishTripView(generics.CreateAPIView):
     
@@ -227,7 +224,7 @@ class MakeOfferView(APIView):
         if detour_nodes is None:
             return Response({'error': 'Cannot serve this passenger on your route.'}, status=400)
 
-        fare = calculate_fare(detour_distance)
+        fare = calculate_fare(detour_nodes, trip.id)
 
         offer = DriverOffer.objects.create(
             trip=trip,

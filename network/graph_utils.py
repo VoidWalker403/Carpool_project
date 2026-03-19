@@ -152,6 +152,43 @@ def calculate_detour(original_route, pickup_id, destination_id):
     return best_detour, best_cost
 
 
-def calculate_fare(detour_distance, base_fare=5.00, per_node_rate=2.00):
-    """Simple fare calculation based on detour distance."""
-    return round(base_fare + (detour_distance * per_node_rate), 2)
+def calculate_fare(detour_nodes, trip_id, base_fee=2.00, unit_price=3.00):
+    """
+    fare = p * sum(1/n_i for each hop i) + base_fee
+    
+    detour_nodes: ordered list of node IDs the driver will traverse for this passenger
+    trip_id: used to find other confirmed passengers already on the trip at each hop
+    p: unit price per hop
+    n_i: total passengers in car at hop i (including this new passenger)
+    base_fee: flat base charge
+    """
+    from trips.models import DriverOffer, TripRoute
+
+    if not detour_nodes or len(detour_nodes) < 2:
+        return round(base_fee, 2)
+
+    # Get all already-confirmed offers on this trip
+    confirmed_offers = DriverOffer.objects.filter(
+        trip_id=trip_id,
+        status='confirmed'
+    ).values_list('detour_nodes', flat=True)
+
+    # Build a map: node_id -> number of existing confirmed passengers at that hop
+    existing_passengers_at_node = {}
+    for offer_nodes in confirmed_offers:
+        for node_id in offer_nodes:
+            existing_passengers_at_node[node_id] = (
+                existing_passengers_at_node.get(node_id, 0) + 1
+            )
+
+    total = 0.0
+    # Each consecutive pair in detour_nodes = one hop
+    hops = detour_nodes  # each node in the detour is a hop
+
+    for node_id in hops:
+        # n_i = existing confirmed passengers + this new passenger (1)
+        n_i = existing_passengers_at_node.get(node_id, 0) + 1
+        total += 1.0 / n_i
+
+    fare = unit_price * total + base_fee
+    return round(fare, 2)
