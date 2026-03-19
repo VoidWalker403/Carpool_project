@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head><title>Trip Summary</title></head>
+<body>
+  <h1>Trip Summary - {{ trip.start_node }} → {{ trip.end_node }}</h1>
+
+  <h2>Pending Offers</h2>
+  {% for offer in pending_offers %}
+    <p>Request #{{ offer.carpool_request.id }} | Detour: {{ offer.detour_distance }} nodes | Fare: ${{ offer.fare }}</p>
+  {% empty %}<p>None</p>{% endfor %}
+
+  <h2>Confirmed Carpools</h2>
+  {% for offer in confirmed_carpools %}
+    <p>Request #{{ offer.carpool_request.id }} | Fare: ${{ offer.fare }}</p>
+  {% empty %}<p>None</p>{% endfor %}
+
+  <h2>Past/Rejected Requests</h2>
+  {% for offer in past_requests %}
+    <p>Request #{{ offer.carpool_request.id }} | Fare: ${{ offer.fare }}</p>
+  {% empty %}<p>None</p>{% endfor %}
+</body>
+</html>

@@ -2,6 +2,8 @@ from rest_framework import serializers
 from .models import Trip, TripRoute
 from network.models import Node
 from network.graph_utils import bfs
+from .models import Trip, TripRoute, CarpoolRequest, DriverOffer
+from network.graph_utils import bfs, calculate_detour, calculate_fare, get_nodes_within_distance
 
 class TripRouteSerializer(serializers.ModelSerializer):
     node_name = serializers.CharField(source='node.name', read_only=True)
@@ -66,4 +68,35 @@ class UpdateCurrentNodeSerializer(serializers.Serializer):
             node = Node.objects.get(id=value)
         except Node.DoesNotExist:
             raise serializers.ValidationError("Node does not exist.")
-        return value
+        return 
+    
+
+
+class DriverOfferSerializer(serializers.ModelSerializer):
+    driver_username = serializers.CharField(source='trip.driver.username', read_only=True)
+    detour_distance = serializers.IntegerField(read_only=True)
+    fare = serializers.DecimalField(max_digits=8, decimal_places=2, read_only=True)
+
+    class Meta:
+        model = DriverOffer
+        fields = ['id', 'driver_username', 'detour_nodes', 'detour_distance', 'fare', 'status']
+
+
+class CarpoolRequestSerializer(serializers.ModelSerializer):
+    offers = DriverOfferSerializer(many=True, read_only=True)
+    passenger_username = serializers.CharField(source='passenger.username', read_only=True)
+    pickup_node_name = serializers.CharField(source='pickup_node.name', read_only=True)
+    destination_node_name = serializers.CharField(source='destination_node.name', read_only=True)
+
+    class Meta:
+        model = CarpoolRequest
+        fields = [
+            'id', 'passenger_username', 'pickup_node', 'pickup_node_name',
+            'destination_node', 'destination_node_name', 'status', 'offers', 'created_at'
+        ]
+        read_only_fields = ['passenger_username', 'status', 'offers']
+
+    def validate(self, data):
+        if data['pickup_node'] == data['destination_node']:
+            raise serializers.ValidationError("Pickup and destination cannot be the same.")
+        return data

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head><title>Incoming Requests - Trip {{ trip.id }}</title></head>
+<body>
+  <h1>Incoming Carpool Requests</h1>
+  <h3>Your trip: {{ trip.start_node }} → {{ trip.end_node }}</h3>
+
+  {% if requests %}
+    {% for req in requests %}
+    <div style="border:1px solid #ccc; padding:10px; margin:10px 0;">
+      <p><strong>Passenger:</strong> {{ req.passenger.username }}</p>
+      <p><strong>Pickup:</strong> {{ req.pickup_node.name }}</p>
+      <p><strong>Destination:</strong> {{ req.destination_node.name }}</p>
+      <form method="post" action="/api/trips/{{ trip.id }}/make-offer/{{ req.id }}/">
+        {% csrf_token %}
+        <button type="submit">Make Offer</button>
+      </form>
+    </div>
+    {% endfor %}
+  {% else %}
+    <p>No incoming requests near your route.</p>
+  {% endif %}
+</body>
+</html>
