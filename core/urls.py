@@ -25,6 +25,7 @@ urlpatterns = [
     path("signup/", signup, name="signup"),
     path("passenger/", passenger_dashboard, name="passenger_dashboard"),
     path("driver/", driver_dashboard, name="driver_dashboard"),
-    path('', include('accounts.urls'))
+    path('', include('accounts.urls')),
+    path('api/trips/', include('trips.urls')),
     
 ]
