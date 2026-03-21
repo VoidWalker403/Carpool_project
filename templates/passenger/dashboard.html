@@ -27,7 +27,6 @@
       min-height:100vh;
       font-family: Orbitron, system-ui, sans-serif;
       color: var(--text);
-
       background:
         radial-gradient(1200px 600px at 20% 10%, rgba(124,92,255,.18), transparent 55%),
         radial-gradient(1000px 600px at 80% 20%, rgba(34,211,238,.16), transparent 55%),
@@ -39,7 +38,6 @@
       overflow-x:hidden;
     }
 
-    /* subtle moving scanlines */
     body::before{
       content:"";
       position:fixed; inset:0;
@@ -77,11 +75,7 @@
       box-shadow: 0 30px 90px rgba(0,0,0,.55);
     }
 
-    .brand{
-      display:flex;
-      align-items:center;
-      gap:12px;
-    }
+    .brand{ display:flex; align-items:center; gap:12px; }
     .badge{
       padding:6px 10px;
       border:1px solid rgba(34,211,238,.35);
@@ -261,27 +255,14 @@
       color: var(--muted);
     }
 
-    /* Reduce motion */
+    .request-form{ margin:0; }
+
     @media (prefers-reduced-motion: reduce){
       body::before{ animation:none; }
       .btn:hover{ transform:none; }
     }
   </style>
 </head>
-<h2>Available Rides</h2>
-
-{% if rides %}
-    {% for ride in rides %}
-        <div class="ride-card">
-            <b>{{ ride.from_location }}</b> → <b>{{ ride.to_location }}</b><br>
-            Departure: {{ ride.departure_time }}<br>
-            Seats: {{ ride.seats_available }}<br>
-            Price: ₹{{ ride.price_per_seat }}
-        </div>
-    {% endfor %}
-{% else %}
-    <p>No rides available right now.</p>
-{% endif %}
 <body>
   <div class="wrap">
 
@@ -293,11 +274,9 @@
           <div class="muted">Welcome, {{ request.user.username }} — find a ride and boost in.</div>
         </div>
       </div>
-
       <div class="actions">
         <div class="chip">⚡ Status: Online</div>
-        <a class="btn secondary" href="/login/">Switch Account</a>
-        <a class="btn" href="/logout/">Logout</a>
+        <a class="btn secondary" href="/logout/">Logout</a>
       </div>
     </div>
 
@@ -307,7 +286,6 @@
       <div class="card">
         <h2>Find a trip</h2>
 
-        <!-- For now this is UI only (no backend filtering yet) -->
         <form class="search" method="get">
           <div>
             <label>From</label>
@@ -322,80 +300,61 @@
             <input name="when" type="time" />
           </div>
           <div>
-            <button class="btn" type="submit">BOOST SEARCH</button>
+            <button class="btn" type="submit">Boost Search</button>
           </div>
         </form>
 
         <div class="mini">
           <span class="pill">🛰 Nearby join: enabled</span>
           <span class="pill">🧠 Smart match: soon</span>
-          <span class="pill">🧾 Requests: soon</span>
         </div>
 
         <div class="results">
-
-          <!-- Dummy trips (we will replace with real DB trips next) -->
+          {% for trip in trips %}
           <div class="trip">
             <div>
-              <strong>A12 → C09</strong>
-              <div class="meta">Driver: NeoRider • Seats: 2 • ETA: 12 min • Price: ₹60</div>
+              <strong>{{ trip.start_node.name }} → {{ trip.end_node.name }}</strong>
+              <div class="meta">
+                Driver: {{ trip.driver.username }} •
+                Max Passengers: {{ trip.max_passengers }} •
+                Status: {{ trip.status|upper }}
+              </div>
             </div>
             <div style="display:flex; gap:10px; align-items:center;">
-              <span class="pill">LIVE</span>
-              <button class="btn secondary" type="button">REQUEST</button>
+              <span class="pill">{{ trip.status|upper }}</span>
+              <form class="request-form" method="post" action="/api/trips/requests/submit/">
+                {% csrf_token %}
+                <input type="hidden" name="pickup_node" value="{{ trip.start_node.id }}">
+                <input type="hidden" name="destination_node" value="{{ trip.end_node.id }}">
+                <button class="btn secondary" type="submit">Request</button>
+              </form>
             </div>
           </div>
-
-          <div class="trip">
-            <div>
-              <strong>B07 → D02</strong>
-              <div class="meta">Driver: DriftKing • Seats: 1 • ETA: 8 min • Price: ₹45</div>
-            </div>
-            <div style="display:flex; gap:10px; align-items:center;">
-              <span class="pill">LIVE</span>
-              <button class="btn secondary" type="button">REQUEST</button>
-            </div>
-          </div>
-
-          <div class="trip">
-            <div>
-              <strong>R11 → G05</strong>
-              <div class="meta">Driver: VoidShift • Seats: 3 • ETA: 20 min • Price: ₹80</div>
-            </div>
-            <div style="display:flex; gap:10px; align-items:center;">
-              <span class="pill">SCHEDULED</span>
-              <button class="btn secondary" type="button">REQUEST</button>
-            </div>
-          </div>
-
-        </div>
-
-        <div class="hint">
-          Next: we’ll connect this UI to your Django models so these trips come from the database + requests actually work.
+          {% empty %}
+          <div class="hint">No active trips available right now.</div>
+          {% endfor %}
         </div>
       </div>
 
       <!-- Right: Quick info -->
       <div class="card">
-        <h2>Quick actions</h2>
+        <h2>Quick Actions</h2>
 
         <div class="mini">
           <a class="btn secondary" href="/admin/">Admin</a>
-          <a class="btn secondary" href="/driver/">Driver View</a>
         </div>
 
         <div class="hint" style="margin-top:14px;">
-          <strong>Rule:</strong> Passengers can search trips + request to join. Drivers publish trips. Admin manages the road network graph.
+          <strong>Rule:</strong> Passengers can search trips and request to join.
+          Drivers publish trips. Admin manages the road network graph.
         </div>
 
         <div class="hint" style="margin-top:14px;">
-          <strong>Pro UI tip:</strong> Replace the background image by changing:
-          <code style="color:rgba(234,240,255,.8)">static/images/10.jpg</code>
+          <strong>My Requests:</strong> Coming soon — view status of your submitted requests.
         </div>
       </div>
 
     </div>
-
   </div>
 </body>
 </html>
