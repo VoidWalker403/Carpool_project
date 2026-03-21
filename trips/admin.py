@@ -2,18 +2,6 @@ from django.contrib import admin
 from django.utils.html import format_html
 from .models import Trip, TripRoute, CarpoolRequest, DriverOffer
 
-class TripRouteInline(admin.TabularInline):
-    model = TripRoute
-    extra = 0
-    readonly_fields = ('node', 'order', 'visited')
-
-@admin.register(Trip)
-class TripAdmin(admin.ModelAdmin):
-    list_display = ('id', 'driver', 'start_node', 'end_node', 'current_node', 'max_passengers', 'status', 'created_at')
-    list_filter = ('status',)
-    inlines = [TripRouteInline]
-
-
 
 class TripRouteInline(admin.TabularInline):
     model = TripRoute
@@ -44,7 +32,6 @@ class TripAdmin(admin.ModelAdmin):
         )
     status_display.short_description = "Status"
 
-    # Filter to show only active trips by default
     def get_queryset(self, request):
         qs = super().get_queryset(request)
         return qs.select_related('driver', 'start_node', 'end_node', 'current_node')

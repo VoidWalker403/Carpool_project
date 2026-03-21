@@ -1,18 +1,10 @@
 from django.contrib import admin
-from .models import Post
-
-admin.site.register(Post)
-
-from django.contrib import admin
-from .models import Node, Edge
-
 from django.utils.html import format_html
-
+from .models import Node, Edge
 
 
 @admin.register(Node)
 class NodeAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'description', 'latitude', 'longitude', 'created_at')
     search_fields = ('name',)
     ordering = ('name',)
 

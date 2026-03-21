@@ -2,6 +2,7 @@ from rest_framework import generics, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.exceptions import ValidationError
 from django.shortcuts import get_object_or_404, render
 from .models import Trip, TripRoute, CarpoolRequest, DriverOffer
 from .serializers import TripSerializer, UpdateCurrentNodeSerializer, CarpoolRequestSerializer, DriverOfferSerializer
@@ -9,17 +10,26 @@ from network.models import Node
 from network.graph_utils import calculate_detour, calculate_fare, get_nodes_within_distance
 from core.models import ServiceStatus
 
+
+def check_service_active():
+    """Raises ValidationError if service is suspended."""
+    status_obj = ServiceStatus.get_status()
+    if not status_obj.is_active:
+        raise ValidationError(
+            f'Carpooling service is currently suspended. Reason: {status_obj.suspended_reason}'
+        )
+
+
 class PublishTripView(generics.CreateAPIView):
-    
     serializer_class = TripSerializer
     permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
+        check_service_active()  # ✅ raises error if suspended
         serializer.save(driver=self.request.user)
 
 
 class MyTripsView(generics.ListAPIView):
-    
     serializer_class = TripSerializer
     permission_classes = [IsAuthenticated]
 
@@ -28,7 +38,6 @@ class MyTripsView(generics.ListAPIView):
 
 
 class CancelTripView(APIView):
-    
     permission_classes = [IsAuthenticated]
 
     def post(self, request, trip_id):
@@ -46,7 +55,6 @@ class CancelTripView(APIView):
 
 
 class UpdateCurrentNodeView(APIView):
-    
     permission_classes = [IsAuthenticated]
 
     def post(self, request, trip_id):
@@ -62,7 +70,6 @@ class UpdateCurrentNodeView(APIView):
         serializer.is_valid(raise_exception=True)
         node_id = serializer.validated_data['node_id']
 
-        
         route_entry = TripRoute.objects.filter(
             trip=trip, node_id=node_id, visited=False
         ).first()
@@ -73,16 +80,13 @@ class UpdateCurrentNodeView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        
         TripRoute.objects.filter(
             trip=trip, order__lte=route_entry.order
         ).update(visited=True)
 
-        
         trip.current_node_id = node_id
         trip.status = 'in_progress'
 
-        
         if node_id == trip.end_node_id:
             trip.status = 'completed'
 
@@ -94,20 +98,18 @@ class UpdateCurrentNodeView(APIView):
         })
 
 
-
-# ─── PASSENGER VIEWS ───────────────────────────────────────────
+# ─── PASSENGER VIEWS ─────────────────────────────────────────
 
 class SubmitCarpoolRequestView(generics.CreateAPIView):
-    """Passenger submits a carpool request."""
     serializer_class = CarpoolRequestSerializer
     permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
+        check_service_active()  # ✅ raises error if suspended
         serializer.save(passenger=self.request.user)
 
 
 class ViewOffersView(generics.RetrieveAPIView):
-    """Passenger views all driver offers for their request."""
     serializer_class = CarpoolRequestSerializer
     permission_classes = [IsAuthenticated]
 
@@ -120,7 +122,6 @@ class ViewOffersView(generics.RetrieveAPIView):
 
 
 class ConfirmOfferView(APIView):
-    """Passenger confirms one driver's offer."""
     permission_classes = [IsAuthenticated]
 
     def post(self, request, request_id, offer_id):
@@ -132,7 +133,6 @@ class ConfirmOfferView(APIView):
 
         offer = get_object_or_404(DriverOffer, id=offer_id, carpool_request=carpool_request)
 
-        # Confirm this offer, reject others
         DriverOffer.objects.filter(carpool_request=carpool_request).exclude(id=offer_id).update(status='rejected')
         offer.status = 'confirmed'
         offer.save()
@@ -145,7 +145,6 @@ class ConfirmOfferView(APIView):
 
 
 class CancelCarpoolRequestView(APIView):
-    """Passenger cancels their carpool request."""
     permission_classes = [IsAuthenticated]
 
     def post(self, request, request_id):
@@ -160,36 +159,28 @@ class CancelCarpoolRequestView(APIView):
         return Response({'message': 'Request cancelled.'})
 
 
-# ─── DRIVER VIEWS ───────────────────────────────────────────────
+# ─── DRIVER VIEWS ────────────────────────────────────────────
 
 class IncomingRequestsView(APIView):
-    """
-    Driver sees all incoming carpool requests within 2 nodes
-    of their remaining route. Rendered as SSR page.
-    """
     permission_classes = [IsAuthenticated]
 
     def get(self, request, trip_id):
         trip = get_object_or_404(Trip, id=trip_id, driver=request.user)
 
-        # Get remaining unvisited route nodes
         remaining_nodes = list(
             TripRoute.objects.filter(trip=trip, visited=False)
             .order_by('order')
             .values_list('node_id', flat=True)
         )
 
-        # Get all nodes within 2 hops of remaining route
         nearby_node_ids = get_nodes_within_distance(remaining_nodes, max_distance=2)
 
-        # Find requests where BOTH pickup AND destination are within nearby nodes
         incoming = CarpoolRequest.objects.filter(
             status='pending',
             pickup_node_id__in=nearby_node_ids,
             destination_node_id__in=nearby_node_ids
         ).select_related('passenger', 'pickup_node', 'destination_node')
 
-        # Render SSR page for driver
         return render(request, 'trips/incoming_requests.html', {
             'trip': trip,
             'requests': incoming,
@@ -197,25 +188,21 @@ class IncomingRequestsView(APIView):
 
 
 class MakeOfferView(APIView):
-    """Driver makes an offer for a carpool request."""
     permission_classes = [IsAuthenticated]
 
     def post(self, request, trip_id, request_id):
         trip = get_object_or_404(Trip, id=trip_id, driver=request.user)
         carpool_request = get_object_or_404(CarpoolRequest, id=request_id, status='pending')
 
-        # Avoid duplicate offers
         if DriverOffer.objects.filter(trip=trip, carpool_request=carpool_request).exists():
             return Response({'error': 'You already made an offer for this request.'}, status=400)
 
-        # Get remaining route
         remaining_nodes = list(
             TripRoute.objects.filter(trip=trip, visited=False)
             .order_by('order')
             .values_list('node_id', flat=True)
         )
 
-        # Calculate detour
         detour_nodes, detour_distance = calculate_detour(
             remaining_nodes,
             carpool_request.pickup_node_id,
@@ -239,7 +226,6 @@ class MakeOfferView(APIView):
 
 
 class DriverTripSummaryView(APIView):
-    """Driver views all offers, confirmed carpools, and past requests for their trip."""
     permission_classes = [IsAuthenticated]
 
     def get(self, request, trip_id):
@@ -252,15 +238,3 @@ class DriverTripSummaryView(APIView):
             'confirmed_carpools': offers.filter(status='confirmed'),
             'past_requests': offers.filter(status='rejected'),
         })
-    
-
-
-def check_service_active():
-    """Returns error response if service is suspended, None if active."""
-    status_obj = ServiceStatus.get_status()
-    if not status_obj.is_active:
-        return Response(
-            {'error': f'Carpooling service is currently suspended. Reason: {status_obj.suspended_reason}'},
-            status=503
-        )
-    return None
