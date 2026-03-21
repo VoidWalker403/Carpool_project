@@ -7,6 +7,7 @@ from .models import Trip, TripRoute, CarpoolRequest, DriverOffer
 from .serializers import TripSerializer, UpdateCurrentNodeSerializer, CarpoolRequestSerializer, DriverOfferSerializer
 from network.models import Node
 from network.graph_utils import calculate_detour, calculate_fare, get_nodes_within_distance
+from core.models import ServiceStatus
 
 class PublishTripView(generics.CreateAPIView):
     
@@ -251,3 +252,15 @@ class DriverTripSummaryView(APIView):
             'confirmed_carpools': offers.filter(status='confirmed'),
             'past_requests': offers.filter(status='rejected'),
         })
+    
+
+
+def check_service_active():
+    """Returns error response if service is suspended, None if active."""
+    status_obj = ServiceStatus.get_status()
+    if not status_obj.is_active:
+        return Response(
+            {'error': f'Carpooling service is currently suspended. Reason: {status_obj.suspended_reason}'},
+            status=503
+        )
+    return None
