@@ -27,5 +27,6 @@ urlpatterns = [
     path("driver/", driver_dashboard, name="driver_dashboard"),
     path('', include('accounts.urls')),
     path('api/trips/', include('trips.urls')),
+    path('accounts/', include('allauth.urls')),
     
 ]
